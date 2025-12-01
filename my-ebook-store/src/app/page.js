@@ -1,50 +1,50 @@
-import Link from "next/link";
+import { connectDB } from "@/lib/db";
+import { Book } from "@/models/Book";
+import { auth } from "@/auth";
+import Navbar from "@/components/Navbar"; // Header ki jagah Navbar import kiya
+import BookList from "@/components/BookList"; 
 
-export default function Home() {
+// Database se books laane ka function
+async function getBooks() {
+  try {
+    await connectDB();
+    const books = await Book.find({}).sort({ createdAt: -1 }).lean();
+    return books.map(book => ({
+      ...book, 
+      _id: book._id.toString()
+    }));
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const books = await getBooks();
+  const session = await auth();
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header / Navbar */}
-      <header className="bg-white shadow p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-purple-700">My E-Book Store</h1>
-        <div className="space-x-4">
-          <Link 
-            href="/register" 
-            className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
-          >
-            Register
-          </Link>
-          <Link 
-            href="/login" 
-            className="rounded bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 transition"
-          >
-            Login
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 text-slate-900 font-sans">
+      
+      {/* Updated Navbar Component */}
+      <Navbar session={session} />
 
-      {/* Main Content */}
-      <main className="flex flex-col items-center justify-center py-20 px-4 text-center">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
-          Welcome to Your E-Book Empire 📚
-        </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mb-8">
-          Discover, Read, and Sell E-Books easily. Join us to start your journey.
-        </p>
-        
-        <div className="flex gap-4">
-          <Link 
-            href="/login" 
-            className="rounded-lg bg-blue-600 px-6 py-3 text-white font-semibold hover:bg-blue-700 transition shadow-md"
-          >
-            Get Started
-          </Link>
-          <Link 
-            href="/add-book" 
-            className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-gray-700 font-semibold hover:bg-gray-50 transition shadow-sm"
-          >
-            Browse Books
-          </Link>
-        </div>
+      <main className="container mx-auto px-6 py-12">
+        {/* Modern Hero Section */}
+        <section className="mb-16 text-center space-y-4">
+          <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wider text-blue-600 uppercase bg-blue-50 rounded-full">
+            Discover Your Next Adventure
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900">
+            Explore the World of <span className="text-blue-600">Digital Books</span>
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Get access to thousands of premium e-books across fiction, business, science, and more. Instant download, read anywhere.
+          </p>
+        </section>
+
+        {/* Books Grid */}
+        <BookList books={books} />
       </main>
     </div>
   );
