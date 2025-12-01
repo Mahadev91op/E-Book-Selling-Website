@@ -10,8 +10,7 @@ import {
   X, 
   ChevronDown, 
   LogOut, 
-  BookOpen,
-  PlusCircle
+  BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -35,7 +34,7 @@ export default function Navbar({ session }) {
             </span>
           </Link>
 
-          {/* 2. Desktop Navigation & Search (Hidden on Mobile) */}
+          {/* 2. Desktop Navigation & Search */}
           <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             
             {/* Categories Dropdown */}
@@ -50,7 +49,6 @@ export default function Navbar({ session }) {
                 <ChevronDown className={`w-4 h-4 transition-transform ${isCategoryOpen ? "rotate-180" : ""}`} />
               </button>
 
-              {/* Dropdown Content */}
               <AnimatePresence>
                 {isCategoryOpen && (
                   <motion.div
@@ -90,17 +88,9 @@ export default function Navbar({ session }) {
             </div>
           </div>
 
-          {/* 3. Right Section: Cart, Add Book, Profile */}
+          {/* 3. Right Section */}
           <div className="flex items-center gap-2 md:gap-4">
             
-            {/* Add Book Button (Only for Admins) */}
-            {session?.user?.role === "admin" && (
-                <Link href="/add-book" className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-blue-50 transition-colors">
-                <PlusCircle className="w-5 h-5" />
-                <span>Add Book</span>
-                </Link>
-            )}
-
             {/* Cart Icon */}
             <button className="relative p-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-full transition-colors">
               <ShoppingBag className="w-5 h-5" />
@@ -110,7 +100,7 @@ export default function Navbar({ session }) {
               </span>
             </button>
 
-            {/* User Profile / Login Button */}
+            {/* User Profile */}
             {session ? (
               <div className="relative">
                 <button 
@@ -122,7 +112,6 @@ export default function Navbar({ session }) {
                   </div>
                 </button>
 
-                {/* Profile Dropdown */}
                 <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
@@ -170,7 +159,7 @@ export default function Navbar({ session }) {
         </div>
       </div>
 
-      {/* Mobile Menu (Expandable) */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -191,7 +180,6 @@ export default function Navbar({ session }) {
               <div className="grid gap-2">
                 <Link href="/" className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50">Home</Link>
                 <Link href="/categories" className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50">Categories</Link>
-                <Link href="/bestsellers" className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50">Bestsellers</Link>
                 {!session && (
                     <>
                         <Link href="/login" className="block px-3 py-2 rounded-lg text-base font-medium text-blue-600 hover:bg-blue-50">Log in</Link>
