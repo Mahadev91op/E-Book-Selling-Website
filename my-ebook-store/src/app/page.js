@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import AboutSection from "@/components/AboutSection"; // Import kiya
+import AboutSection from "@/components/AboutSection";
+import FAQSection from "@/components/FAQSection"; // Import kiya
 
 export default async function Home() {
   const session = await auth();
@@ -17,6 +18,9 @@ export default async function Home() {
       
       {/* About Section */}
       <AboutSection />
+
+      {/* FAQ Section (New) */}
+      <FAQSection />
 
     </div>
   );
