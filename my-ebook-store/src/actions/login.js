@@ -1,7 +1,9 @@
 "use server";
 import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 
-export async function doLogin(formData) {
+// prevState argument add kiya gaya hai (React 19 useActionState ke liye)
+export async function doLogin(prevState, formData) {
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -9,12 +11,18 @@ export async function doLogin(formData) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/", // Login ke baad Home page pe bhej dega
+      redirectTo: "/",
     });
   } catch (error) {
-    if (error.type === 'CredentialsSignin') {
-        return { error: 'Invalid credentials!' };
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return "Invalid credentials!";
+        default:
+          return "Something went wrong!";
+      }
     }
-    throw error; // NextJS redirects throw errors, so we need to rethrow
+    // Next.js redirect ke liye error throw karna zaruri hai
+    throw error;
   }
 }
