@@ -6,23 +6,30 @@ import { ArrowRight, BookOpen, Star, Zap } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white pt-16 pb-24 md:pt-24 md:pb-32">
+    // Padding top increased: pt-32 (mobile) and md:pt-40 (desktop)
+    <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-32">
       
-      {/* Background Blobs */}
-      <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-      <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+      {/* === Animated Background (Blue/Indigo Theme) === */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white -z-20"></div>
+      
+      {/* Moving Blobs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-purple-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-indigo-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
           
-          {/* Left Content */}
+          {/* === Left Content (Text) === */}
           <div className="flex-1 text-center md:text-left space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold uppercase tracking-wide mb-4 border border-blue-200">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-blue-200 text-blue-700 text-xs font-semibold uppercase tracking-wide mb-4 backdrop-blur-sm">
                 <Zap className="w-3 h-3 fill-current" /> New Arrivals Available
               </span>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
@@ -52,12 +59,12 @@ export default function HeroSection() {
               <Link href="#books" className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-8 rounded-full bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:scale-105 transition-all duration-300">
                 Start Reading <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
-              <Link href="#categories" className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-slate-700 border border-slate-200 font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-300">
+              <Link href="#categories" className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-8 rounded-full bg-white/80 backdrop-blur-sm text-slate-700 border border-slate-200 font-semibold hover:bg-white hover:border-slate-300 transition-all duration-300">
                 Explore Genres
               </Link>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats Section */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -76,7 +83,7 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right Content */}
+          {/* === Right Content (3D Visual Animation) === */}
           <div className="flex-1 relative w-full max-w-lg md:max-w-none flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
@@ -88,11 +95,14 @@ export default function HeroSection() {
               <motion.div 
                 animate={{ y: [0, -15, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="relative w-72 md:w-80 aspect-[4/5] bg-white rounded-3xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 p-6 flex flex-col items-center text-center backdrop-blur-sm"
+                className="relative w-72 md:w-80 aspect-[4/5] bg-white/60 backdrop-blur-md rounded-3xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] border border-white/50 p-6 flex flex-col items-center text-center"
               >
+                {/* Book Cover Placeholder */}
                 <div className="w-full h-4/5 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-inner flex items-center justify-center mb-6 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
                   <BookOpen className="w-24 h-24 text-white/90 drop-shadow-lg group-hover:scale-110 transition-transform duration-500" />
+                  
+                  {/* Shine Effect */}
                   <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
                 </div>
 
@@ -105,9 +115,6 @@ export default function HeroSection() {
                   ))}
                 </div>
               </motion.div>
-
-              <div className="absolute -top-10 -right-10 w-24 h-24 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-              <div className="absolute -bottom-5 -left-5 w-32 h-32 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-700"></div>
             </motion.div>
           </div>
 
