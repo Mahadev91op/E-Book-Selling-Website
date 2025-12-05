@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link"; // Link import karein
 import { motion } from "framer-motion";
 import { BookOpen, Star, ShoppingCart, Lock } from "lucide-react";
 
@@ -24,9 +25,13 @@ export default function BookCard({ book, index }) {
         
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-          <button className="w-full py-3 bg-white text-blue-600 font-bold rounded-xl shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+          {/* Link yahan add kiya gaya hai */}
+          <Link 
+            href={`/books/${book._id}`} 
+            className="w-full py-3 bg-white text-blue-600 font-bold rounded-xl shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2 hover:bg-blue-50"
+          >
             <BookOpen className="w-4 h-4" /> View Details
-          </button>
+          </Link>
         </div>
 
         {/* Price Tag */}
