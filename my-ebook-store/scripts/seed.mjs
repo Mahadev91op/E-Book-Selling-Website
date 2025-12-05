@@ -1,22 +1,27 @@
 import mongoose from "mongoose";
 
-// Yahan apna MongoDB URL dalein (Jo .env file mein hai)
-// Agar local hai to: mongodb://localhost:27017/ebook-store
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/ebook-store";
+// 👇 YAHAN APNI MONGODB CONNECTION STRING PASTE KAREIN 👇
+// Example: "mongodb+srv://user:pass@cluster.mongodb.net/ebook-store?retryWrites=true&w=majority"
+const MONGODB_URI = "mongodb+srv://mahadevtanti191_db_user:maha123@cluster0.8svwy9r.mongodb.net/ebook-store"; 
 
-// Book Schema (Wahi jo models/Book.js mein hai)
+if (MONGODB_URI === "mongodb+srv://mahadevtanti191_db_user:maha123@cluster0.8svwy9r.mongodb.net" || !MONGODB_URI) {
+  console.error("❌ Error: Please replace 'YOUR_MONGODB_CONNECTION_STRING_HERE' with your actual MongoDB URL in scripts/seed.mjs");
+  process.exit(1);
+}
+
+// Book Schema (Same as models/Book.js)
 const bookSchema = new mongoose.Schema({
   title: { type: String, required: true },
   author: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
   coverImage: { type: String, required: true },
-  fileUrl: { type: String, required: true }, // Schema update
+  fileUrl: { type: String, required: true },
 }, { timestamps: true });
 
 const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);
 
-// Sample PDF link (Public domain book for testing)
+// Sample PDF link
 const SAMPLE_PDF = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
 // --- DEMO DATA ---
@@ -74,14 +79,13 @@ const demoBooks = [
 async function seedDatabase() {
   try {
     console.log("Connecting to Database...");
+    // Connect explicitly to the provided URI
     await mongoose.connect(MONGODB_URI);
-    console.log("Connected!");
+    console.log("Connected to MongoDB Atlas!");
 
-    // Purani books delete karein (Optional)
     console.log("Clearing old books...");
     await Book.deleteMany({});
 
-    // Nayi books add karein
     console.log("Adding demo books...");
     await Book.insertMany(demoBooks);
 

@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  Search, ShoppingBag, User, Menu, X, ChevronDown, LogOut, BookOpen, PlusCircle, Loader2, ChevronRight
+  Search, ShoppingBag, Menu, X, ChevronDown, LogOut, BookOpen, PlusCircle, Loader2, ChevronRight, Library, LayoutDashboard
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSearchSuggestions } from "@/actions/book";
 
-// Categories List
 const categories = [
   "Fiction", "Non-Fiction", "Sci-Fi", "Mystery", "Business", "Self-Help", "History", "Biography"
 ];
@@ -20,29 +19,25 @@ export default function Navbar({ session }) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
-  // Search States
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   
-  // Refs for Click Outside Detection
-  const searchRef = useRef(null);       // Desktop Search Ref
-  const mobileSearchRef = useRef(null); // Mobile Search Ref
+  const searchRef = useRef(null);       
+  const mobileSearchRef = useRef(null); 
   
   const router = useRouter();
 
-  // Scroll Handler & Click Outside Logic
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     
-    // Click Outside Handler (Updated to handle both Desktop & Mobile)
     const handleClickOutside = (event) => {
       const clickedOutsideDesktop = searchRef.current && !searchRef.current.contains(event.target);
-      const clickedOutsideMobile = mobileSearchRef.current && !mobileSearchRef.current.contains(event.target);
+      const isMobileRendered = mobileSearchRef.current;
+      const clickedOutsideMobile = isMobileRendered ? !mobileSearchRef.current.contains(event.target) : true;
 
-      // Sirf tab band karo jab user ne dono search boxes ke bahar click kiya ho
       if (clickedOutsideDesktop && clickedOutsideMobile) {
         setShowSuggestions(false);
       }
@@ -55,7 +50,6 @@ export default function Navbar({ session }) {
     };
   }, []);
 
-  // Search Suggestion Logic (Debounce)
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.trim().length > 1) {
@@ -109,7 +103,6 @@ export default function Navbar({ session }) {
             {/* === Desktop Nav & Search === */}
             <div className="hidden md:flex flex-1 items-center justify-center gap-6">
               
-              {/* Categories Dropdown */}
               <div 
                 className="relative group h-full flex items-center"
                 onMouseEnter={() => setIsCategoryOpen(true)}
@@ -158,7 +151,7 @@ export default function Navbar({ session }) {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
                   <input 
                     type="text" 
-                    placeholder="Search books, authors..." 
+                    placeholder="Search books..." 
                     className="h-10 w-full rounded-full border border-indigo-100/50 bg-white/60 pl-10 pr-10 text-sm font-medium outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm hover:bg-white/80"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -172,7 +165,6 @@ export default function Navbar({ session }) {
                   )}
                 </div>
 
-                {/* Suggestions Dropdown (Desktop) */}
                 <AnimatePresence>
                   {showSuggestions && (
                     <motion.div
@@ -184,13 +176,10 @@ export default function Navbar({ session }) {
                     >
                       {suggestions.length > 0 ? (
                         <div className="py-2">
-                          <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-50 mb-1">
-                            Suggested Books
-                          </div>
                           {suggestions.map((book) => (
                             <Link 
                               key={book._id} 
-                              href={`/books?search=${encodeURIComponent(book.title)}`}
+                              href={`/books/${book._id}`}
                               onClick={() => setShowSuggestions(false)}
                               className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors group cursor-pointer"
                             >
@@ -219,10 +208,9 @@ export default function Navbar({ session }) {
               </div>
             </div>
 
-            {/* === RIGHT: Cart, Profile & Mobile Toggle === */}
+            {/* === RIGHT: Cart & Mobile Toggle === */}
             <div className="flex items-center gap-3 md:gap-5">
               
-              {/* Admin Button */}
               {session?.user?.role === "admin" && (
                   <Link href="/add-book" className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md hover:bg-blue-50 transition-colors">
                   <PlusCircle className="w-5 h-5" />
@@ -230,7 +218,6 @@ export default function Navbar({ session }) {
                   </Link>
               )}
               
-              {/* Cart Button */}
               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative p-2 text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-full transition-colors">
                 <ShoppingBag className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
@@ -239,7 +226,7 @@ export default function Navbar({ session }) {
                 </span>
               </motion.button>
 
-              {/* Profile Dropdown (Desktop) */}
+              {/* Desktop Profile Dropdown */}
               {session ? (
                 <div className="relative hidden md:block">
                   <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 p-1 rounded-full border border-indigo-100 bg-white/50 backdrop-blur-sm">
@@ -254,6 +241,14 @@ export default function Navbar({ session }) {
                           <p className="text-sm font-bold text-slate-900">{session.user.name}</p>
                           <p className="text-xs text-slate-500 truncate">{session.user.email}</p>
                         </div>
+                        
+                        <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors mb-1">
+                          <LayoutDashboard className="w-4 h-4" /> Dashboard
+                        </Link>
+                        <Link href="/my-orders" className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors mb-1">
+                          <Library className="w-4 h-4" /> My Library
+                        </Link>
+
                         <Link href="/api/auth/signout" className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
                           <LogOut className="w-4 h-4" /> Sign Out
                         </Link>
@@ -268,7 +263,6 @@ export default function Navbar({ session }) {
                 </div>
               )}
 
-              {/* Mobile Menu Button (Hamburger) */}
               <button 
                 className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-full"
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -290,7 +284,6 @@ export default function Navbar({ session }) {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed inset-0 z-[60] bg-white md:hidden flex flex-col"
           >
-            {/* Mobile Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-100">
               <span className="text-lg font-bold text-slate-900">Menu</span>
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-slate-50 rounded-full hover:bg-slate-100">
@@ -298,12 +291,11 @@ export default function Navbar({ session }) {
               </button>
             </div>
 
-            {/* Mobile Search (Fixed Suggestions) */}
             <div className="p-4 border-b border-slate-100 bg-slate-50/50">
               <form 
                 onSubmit={(e) => { e.preventDefault(); handleSearchSubmit(e); }} 
                 className="relative"
-                ref={mobileSearchRef} // Ref add kiya gaya
+                ref={mobileSearchRef}
               >
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input 
@@ -312,10 +304,9 @@ export default function Navbar({ session }) {
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => searchQuery.length > 1 && setShowSuggestions(true)} // onFocus add kiya gaya
+                  onFocus={() => searchQuery.length > 1 && setShowSuggestions(true)}
                 />
                 
-                {/* Suggestions Dropdown (Mobile) - Added */}
                 <AnimatePresence>
                   {showSuggestions && (
                     <motion.div
@@ -330,7 +321,7 @@ export default function Navbar({ session }) {
                           {suggestions.map((book) => (
                             <Link 
                               key={book._id} 
-                              href={`/books?search=${encodeURIComponent(book.title)}`}
+                              href={`/books/${book._id}`}
                               onClick={() => {
                                 setShowSuggestions(false);
                                 setIsMobileMenuOpen(false);
@@ -362,13 +353,11 @@ export default function Navbar({ session }) {
               </form>
             </div>
 
-            {/* Mobile Links */}
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl hover:bg-slate-50 font-medium text-slate-700">
                 Home
               </Link>
               
-              {/* Mobile Categories */}
               <div className="px-4 py-2">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</p>
                 <div className="space-y-1">
@@ -395,7 +384,7 @@ export default function Navbar({ session }) {
               )}
             </div>
 
-            {/* Mobile Footer (Auth) */}
+            {/* Mobile Footer (Auth & User Links) */}
             <div className="p-4 border-t border-slate-100 bg-slate-50/50">
               {session ? (
                 <div className="space-y-3">
@@ -408,6 +397,25 @@ export default function Navbar({ session }) {
                       <p className="text-xs text-slate-500">{session.user.email}</p>
                     </div>
                   </div>
+
+                  {/* 👇 YEH NAYE BUTTONS HAIN JO PAKKA DIKHENGE (Agar Logged in ho) */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link 
+                      href="/dashboard" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-sm shadow-sm"
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    </Link>
+                    <Link 
+                      href="/my-orders" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-sm"
+                    >
+                      <Library className="w-4 h-4" /> My Library
+                    </Link>
+                  </div>
+
                   <Link href="/api/auth/signout" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-red-200 text-red-600 font-medium hover:bg-red-50">
                     <LogOut className="w-4 h-4" /> Sign Out
                   </Link>

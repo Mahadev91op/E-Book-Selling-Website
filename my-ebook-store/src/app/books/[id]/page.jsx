@@ -1,12 +1,14 @@
 import { connectDB } from "@/lib/db";
 import { Book } from "@/models/Book";
+import { User } from "@/models/User"; 
 import { auth } from "@/auth";
 import Navbar from "@/components/Navbar";
+import BuyButton from "@/components/BuyButton"; // 👈 Yahan Naya Component Import Kiya
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ShoppingCart, Star, CheckCircle, ArrowLeft, BookOpen, Share2, BookOpenText } from "lucide-react";
+import { Star, CheckCircle, ArrowLeft, BookOpen, Share2, BookOpenText } from "lucide-react";
 
-// Database se single book fetch karne ka function
+// Database se book fetch karne ka function
 async function getBook(id) {
   try {
     await connectDB();
@@ -18,14 +20,28 @@ async function getBook(id) {
   }
 }
 
+// User ka data lane ka function (taaki check karein ki book kharidi hai ya nahi)
+async function getUser(email) {
+  if (!email) return null;
+  await connectDB();
+  return await User.findOne({ email }).lean();
+}
+
 export default async function BookDetailsPage({ params }) {
-  // Params await karna zaroori hai Next.js 15+ mein
   const { id } = await params;
   const book = await getBook(id);
   const session = await auth();
 
   if (!book) {
     return notFound();
+  }
+
+  // Check karna ki user ne book pehle se khareedi hai ya nahi
+  let hasPurchased = false;
+  if (session?.user?.email) {
+    const user = await getUser(session.user.email);
+    // User ki library check karein
+    hasPurchased = user?.library?.map(libId => libId.toString()).includes(id);
   }
 
   return (
@@ -77,7 +93,6 @@ export default async function BookDetailsPage({ params }) {
               {/* Price Block */}
               <div className="flex items-end gap-4 mb-8 pb-8 border-b border-slate-100">
                 <div className="text-4xl font-bold text-slate-900">₹{book.price}</div>
-                {/* Fake original price for effect */}
                 <div className="text-xl text-slate-400 line-through mb-1">₹{book.price + 200}</div>
                 <div className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded mb-1">
                   Save ₹200
@@ -94,32 +109,25 @@ export default async function BookDetailsPage({ params }) {
                 </p>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons Area */}
               <div className="mt-auto flex flex-col gap-4">
                 
-                {/* Agar user logged in hai to Read button dikhao */}
-                {session ? (
+                {hasPurchased ? (
+                  // Agar book khareed li hai, to "Read Now" button dikhao
                   <Link 
                     href={`/books/${book._id}/read`}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-500/30 transition-all flex items-center justify-center gap-2"
                   >
-                    <BookOpenText className="w-6 h-6" /> Read Now
+                    <BookOpenText className="w-6 h-6" /> Read Now (Owned)
                   </Link>
                 ) : (
-                  <Link 
-                    href="/login"
-                    className="w-full bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
-                  >
-                    Login to Read
-                  </Link>
+                  // Agar nahi khareedi, to humara Naya BuyButton dikhao
+                  <BuyButton bookId={book._id.toString()} price={book.price} />
                 )}
 
                 <div className="flex gap-4">
-                  <button className="flex-1 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2">
-                    <ShoppingCart className="w-5 h-5" /> Buy for ₹{book.price}
-                  </button>
-                  <button className="px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 font-bold hover:border-slate-400 transition-all flex items-center justify-center gap-2">
-                    <Share2 className="w-5 h-5" />
+                  <button className="px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-700 font-bold hover:border-slate-400 transition-all flex items-center justify-center gap-2 w-full">
+                    <Share2 className="w-5 h-5" /> Share
                   </button>
                 </div>
               </div>
