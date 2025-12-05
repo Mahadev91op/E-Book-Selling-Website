@@ -11,6 +11,7 @@ const bookSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   coverImage: { type: String, required: true },
+  fileUrl: { type: String, required: true }, // Schema update
 }, { timestamps: true });
 
 const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);
